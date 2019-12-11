@@ -42,6 +42,7 @@
 #include "mbedtls/entropy_poll.h"
 #endif
 
+#include <assert.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -142,30 +143,64 @@ int mbedtls_platform_memcmp( const void *buf1, const void *buf2, size_t num )
 
 uint32_t mbedtls_platform_random_in_range( size_t num )
 {
-    /* Temporary force the dummy version - drawing directly from the HRNG
-     * seems to be causing issues, avoid doing that until we understood the
-     * issue, and perhaps we'll need to draw from a DRBG instead. */
-#if 1 || !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
-    (void) num;
-    return 0;
-#else
     uint32_t result = 0;
-    size_t olen = 0;
-
-    mbedtls_hardware_poll( NULL, (unsigned char *) &result, sizeof( result ),
-                           &olen );
-
     if( num == 0 )
     {
         result = 0;
+        return result;
     }
-    else
+#if defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
+    size_t olen = 0;
+    mbedtls_hardware_poll( NULL, (unsigned char *) &result, sizeof( result ),
+                           &olen );
+    result %= num;
+    return( result );
+#elif defined(MBEDTLS_HMAC_DRBG_C)
+    int retval;
+    mbedtls_entropy_init( &_entropy );
+    mbedtls_hmac_drbg_init( &_drbg );
+    retval = mbedtls_hmac_drbg_seed( &_drbg, mbedtls_md_info_from_type(MBEDTLS_MD_SHA256), mbedtls_entropy_func, &_entropy, NULL, 0 );
+    if ( retval )
     {
-        result %= num;
+        MBEDTLS_SSL_DEBUG_MSG( 1, ( "mbedtls_hmac_drbg_seed failed with %d in mbedtls_platform_random_in_range", retval ) );
+        assert( 0 );
     }
 
-    return( result );
+    retval = mbedtls_hmac_drbg_random( &_drbg, (unsigned char *) &result, sizeof( result ) );
+    if ( retval )
+    {
+        MBEDTLS_SSL_DEBUG_MSG( 1, ( "mbedtls_hmac_drbg_random failed with %d in mbedtls_platform_random_in_range", retval ) );
+        assert( 0 );
+    }
+    result %= num;
+    return ( result );
+#elif defined(MBEDTLS_CTR_DRBG_C)
+    size_t olen = 0;
+    int retval;
+    mbedtls_entropy_init( &_entropy );
+    mbedtls_ctr_drbg_init( &_drbg );
+    retval = mbedtls_ctr_drbg_seed( &_drbg, mbedtls_entropy_func, &_entropy, NULL, 0 );
+    if ( retval )
+    {
+        MBEDTLS_SSL_DEBUG_MSG( 1, ( "mbedtls_ctr_drbg_seed failed with %d in mbedtls_platform_random_in_range", retval ) );
+        assert( 0 );
+    }
+
+    retval = mbedtls_ctr_drbg_random( (unsigned char *) &result, sizeof( result ), &olen );
+    if ( retval )
+    {
+        MBEDTLS_SSL_DEBUG_MSG( 1, ( "mbedtls_ctr_drbg_random failed with %d in mbedtls_platform_random_in_range", retval ) );
+        assert( 0 );
+    }
+    result %= num;
+    return ( result );
+#else
+    // crappy random for example Xorshift
+    return ( result );
 #endif
+
+
+
 }
 
 /* Some compilers (armcc 5 for example) optimize away successive reads from a
