@@ -142,29 +142,44 @@ int mbedtls_platform_memcmp( const void *buf1, const void *buf2, size_t num )
 
 uint32_t mbedtls_platform_random_in_range( size_t num )
 {
-    /* Temporary force the dummy version - drawing directly from the HRNG
-     * seems to be causing issues, avoid doing that until we understood the
-     * issue, and perhaps we'll need to draw from a DRBG instead. */
-#if 1 || !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
-    (void) num;
-    return 0;
-#else
-    uint32_t result = 0;
+#if defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
     size_t olen = 0;
+    uint32_t result = 0;
+    if( num == 0 )
+    {
+        return result;
+    }
 
     mbedtls_hardware_poll( NULL, (unsigned char *) &result, sizeof( result ),
                            &olen );
 
+    result %= num;
+
+    return( result );
+#elif defined (MBEDTLS_HAVE_TIME)
+#include <time.h>
+    static int srand_called = 0;
+    uint32_t result = 0;
     if( num == 0 )
     {
-        result = 0;
+        return result;
     }
-    else
+
+    if (!srand_called)
+    {
+        srand(time(0));
+        srand_called = 1;
+    }
+
+    result = rand();
+
+    if (result > num)
     {
         result %= num;
     }
-
     return( result );
+#else
+#error "No mbedtls random available"
 #endif
 }
 
