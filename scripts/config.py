@@ -218,6 +218,7 @@ def keep_in_baremetal(name):
             'MBEDTLS_THREADING_C',
             'MBEDTLS_THREADING_PTHREAD',
             'MBEDTLS_TIMING_C',
+            'MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION',
     ]:
         return False
     return True

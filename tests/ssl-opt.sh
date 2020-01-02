@@ -4128,6 +4128,7 @@ run_test    "SNI: no SNI callback" \
             -c "issuer name *: C=NL, O=PolarSSL, CN=Polarssl Test EC CA" \
             -c "subject name *: C=NL, O=PolarSSL, CN=localhost"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: matching cert 1" \
             "$P_SRV debug_level=3 \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4138,6 +4139,7 @@ run_test    "SNI: matching cert 1" \
             -c "issuer name *: C=NL, O=PolarSSL, CN=PolarSSL Test CA" \
             -c "subject name *: C=NL, O=PolarSSL, CN=localhost"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: matching cert 2" \
             "$P_SRV debug_level=3 \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4148,6 +4150,7 @@ run_test    "SNI: matching cert 2" \
             -c "issuer name *: C=NL, O=PolarSSL, CN=PolarSSL Test CA" \
             -c "subject name *: C=NL, O=PolarSSL, CN=polarssl.example"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: no matching cert" \
             "$P_SRV debug_level=3 \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4173,6 +4176,7 @@ run_test    "SNI: client auth no override: optional" \
             -C "skip write certificate verify" \
             -S "skip parse certificate verify"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: client auth override: none -> optional" \
             "$P_SRV debug_level=3 auth_mode=none \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4186,6 +4190,7 @@ run_test    "SNI: client auth override: none -> optional" \
             -C "skip write certificate verify" \
             -S "skip parse certificate verify"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: client auth override: optional -> none" \
             "$P_SRV debug_level=3 auth_mode=optional \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4199,6 +4204,7 @@ run_test    "SNI: client auth override: optional -> none" \
             -c "skip write certificate verify" \
             -s "skip parse certificate verify"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: CA no override" \
             "$P_SRV debug_level=3 auth_mode=optional \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4217,6 +4223,7 @@ run_test    "SNI: CA no override" \
             -s "! The certificate is not correctly signed by the trusted CA" \
             -S "The certificate has been revoked (is on a CRL)"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: CA override" \
             "$P_SRV debug_level=3 auth_mode=optional \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4235,6 +4242,7 @@ run_test    "SNI: CA override" \
             -S "! The certificate is not correctly signed by the trusted CA" \
             -S "The certificate has been revoked (is on a CRL)"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: CA override with CRL" \
             "$P_SRV debug_level=3 auth_mode=optional \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4264,6 +4272,7 @@ run_test    "SNI: DTLS, no SNI callback" \
             -c "issuer name *: C=NL, O=PolarSSL, CN=Polarssl Test EC CA" \
             -c "subject name *: C=NL, O=PolarSSL, CN=localhost"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: DTLS, matching cert 1" \
             "$P_SRV debug_level=3 dtls=1 \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4274,6 +4283,7 @@ run_test    "SNI: DTLS, matching cert 1" \
             -c "issuer name *: C=NL, O=PolarSSL, CN=PolarSSL Test CA" \
             -c "subject name *: C=NL, O=PolarSSL, CN=localhost"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: DTLS, matching cert 2" \
             "$P_SRV debug_level=3 dtls=1 \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4284,6 +4294,7 @@ run_test    "SNI: DTLS, matching cert 2" \
             -c "issuer name *: C=NL, O=PolarSSL, CN=PolarSSL Test CA" \
             -c "subject name *: C=NL, O=PolarSSL, CN=polarssl.example"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: DTLS, no matching cert" \
             "$P_SRV debug_level=3 dtls=1 \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4309,6 +4320,7 @@ run_test    "SNI: DTLS, client auth no override: optional" \
             -C "skip write certificate verify" \
             -S "skip parse certificate verify"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: DTLS, client auth override: none -> optional" \
             "$P_SRV debug_level=3 auth_mode=none dtls=1 \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4322,6 +4334,7 @@ run_test    "SNI: DTLS, client auth override: none -> optional" \
             -C "skip write certificate verify" \
             -S "skip parse certificate verify"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: DTLS, client auth override: optional -> none" \
             "$P_SRV debug_level=3 auth_mode=optional dtls=1 \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4335,6 +4348,7 @@ run_test    "SNI: DTLS, client auth override: optional -> none" \
             -c "skip write certificate verify" \
             -s "skip parse certificate verify"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: DTLS, CA no override" \
             "$P_SRV debug_level=3 auth_mode=optional dtls=1 \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4353,6 +4367,7 @@ run_test    "SNI: DTLS, CA no override" \
             -s "! The certificate is not correctly signed by the trusted CA" \
             -S "The certificate has been revoked (is on a CRL)"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: DTLS, CA override" \
             "$P_SRV debug_level=3 auth_mode=optional dtls=1 \
              crt_file=data_files/server5.crt key_file=data_files/server5.key \
@@ -4371,6 +4386,7 @@ run_test    "SNI: DTLS, CA override" \
             -S "! The certificate is not correctly signed by the trusted CA" \
             -S "The certificate has been revoked (is on a CRL)"
 
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SNI: DTLS, CA override with CRL" \
             "$P_SRV debug_level=3 auth_mode=optional \
              crt_file=data_files/server5.crt key_file=data_files/server5.key dtls=1 \
@@ -6769,6 +6785,7 @@ run_test    "SSL async private: sign, RSA, TLS 1.1" \
             -s "Async resume (slot [0-9]): sign done, status=0"
 
 requires_config_enabled MBEDTLS_SSL_ASYNC_PRIVATE
+requires_config_disabled MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
 run_test    "SSL async private: sign, SNI" \
             "$P_SRV debug_level=3 \
              async_operations=s async_private_delay1=0 async_private_delay2=0 \

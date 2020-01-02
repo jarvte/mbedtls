@@ -347,8 +347,12 @@ int main( int argc, char *argv[] )
         {
             mbedtls_printf( "  . Verifying X.509 certificate..." );
 
-            if( ( ret = mbedtls_x509_crt_verify( &crt, &cacert, &cacrl, NULL, &flags,
-                                         my_verify, NULL ) ) != 0 )
+            if( ( ret = mbedtls_x509_crt_verify( &crt, &cacert, &cacrl,
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
+                                        NULL,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
+                                        &flags,
+                                        my_verify, NULL ) ) != 0 )
             {
                 char vrfy_buf[512];
 
@@ -431,11 +435,13 @@ int main( int argc, char *argv[] )
             goto ssl_exit;
         }
 
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
         if( ( ret = mbedtls_ssl_set_hostname( &ssl, opt.server_name ) ) != 0 )
         {
             mbedtls_printf( " failed\n  ! mbedtls_ssl_set_hostname returned %d\n\n", ret );
             goto ssl_exit;
         }
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
 
         mbedtls_ssl_set_bio( &ssl, &server_fd, mbedtls_net_send, mbedtls_net_recv, NULL );
 

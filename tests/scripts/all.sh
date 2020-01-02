@@ -1212,6 +1212,20 @@ support_test_mx32 () {
     esac
 }
 
+component_test_no_hostname_verification () {
+    msg "build: full + MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION" # ~ 10s
+    scripts/config.py full
+    scripts/config.py unset MBEDTLS_MEMORY_BACKTRACE # too slow for tests
+    scripts/config.py set MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION
+    make CFLAGS='-Werror -O1'
+
+    msg "test: full + MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION" # ~ 10s
+    make test
+
+    msg "test: ssl-opt.sh, full + MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION" # ~ 1 min
+    if_build_succeeded tests/ssl-opt.sh
+}
+
 component_build_arm_none_eabi_gcc () {
     msg "build: arm-none-eabi-gcc, make" # ~ 10s
     scripts/config.py baremetal

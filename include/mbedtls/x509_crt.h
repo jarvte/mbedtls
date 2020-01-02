@@ -77,8 +77,9 @@ typedef struct mbedtls_x509_crt
     mbedtls_x509_buf issuer_id;         /**< Optional X.509 v2/v3 issuer unique identifier. */
     mbedtls_x509_buf subject_id;        /**< Optional X.509 v2/v3 subject unique identifier. */
     mbedtls_x509_buf v3_ext;            /**< Optional X.509 v3 extensions.  */
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
     mbedtls_x509_sequence subject_alt_names;    /**< Optional list of raw entries of Subject Alternative Names extension (currently only dNSName and OtherName are listed). */
-
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
     mbedtls_x509_sequence certificate_policies; /**< Optional list of certificate policies (Only anyPolicy is printed and enforced, however the rest of the policies are still listed). */
 
     int ext_types;              /**< Bit string containing detected and parsed extensions */
@@ -100,6 +101,7 @@ typedef struct mbedtls_x509_crt
 }
 mbedtls_x509_crt;
 
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
 /**
  * From RFC 5280 section 4.2.1.6:
  * OtherName ::= SEQUENCE {
@@ -146,6 +148,7 @@ typedef struct mbedtls_x509_subject_alternative_name
     san; /**< A union of the supported SAN types */
 }
 mbedtls_x509_subject_alternative_name;
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
 
 /**
  * Build flag from an algorithm/curve identifier (pk, md, ecp)
@@ -398,6 +401,8 @@ int mbedtls_x509_crt_parse_file( mbedtls_x509_crt *chain, const char *path );
 int mbedtls_x509_crt_parse_path( mbedtls_x509_crt *chain, const char *path );
 
 #endif /* MBEDTLS_FS_IO */
+
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
 /**
  * \brief          This function parses an item in the SubjectAlternativeNames
  *                 extension.
@@ -427,6 +432,8 @@ int mbedtls_x509_crt_parse_path( mbedtls_x509_crt *chain, const char *path );
  */
 int mbedtls_x509_parse_subject_alt_name( const mbedtls_x509_buf *san_buf,
                                          mbedtls_x509_subject_alternative_name *san );
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
+
 /**
  * \brief          Returns an informational string about the
  *                 certificate.
@@ -523,7 +530,10 @@ int mbedtls_x509_crt_verify_info( char *buf, size_t size, const char *prefix,
 int mbedtls_x509_crt_verify( mbedtls_x509_crt *crt,
                      mbedtls_x509_crt *trust_ca,
                      mbedtls_x509_crl *ca_crl,
-                     const char *cn, uint32_t *flags,
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION) || defined(DOXYGEN_ONLY)
+                     const char *cn,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION || defined(DOXYGEN_ONLY) */
+                     uint32_t *flags,
                      int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *),
                      void *p_vrfy );
 
@@ -565,7 +575,10 @@ int mbedtls_x509_crt_verify_with_profile( mbedtls_x509_crt *crt,
                      mbedtls_x509_crt *trust_ca,
                      mbedtls_x509_crl *ca_crl,
                      const mbedtls_x509_crt_profile *profile,
-                     const char *cn, uint32_t *flags,
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION) || defined(DOXYGEN_ONLY)
+                     const char *cn,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION || defined(DOXYGEN_ONLY) */
+                     uint32_t *flags,
                      int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *),
                      void *p_vrfy );
 
@@ -599,7 +612,10 @@ int mbedtls_x509_crt_verify_restartable( mbedtls_x509_crt *crt,
                      mbedtls_x509_crt *trust_ca,
                      mbedtls_x509_crl *ca_crl,
                      const mbedtls_x509_crt_profile *profile,
-                     const char *cn, uint32_t *flags,
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION) || defined(DOXYGEN_ONLY)
+                     const char *cn,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION || defined(DOXYGEN_ONLY) */
+                     uint32_t *flags,
                      int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *),
                      void *p_vrfy,
                      mbedtls_x509_crt_restart_ctx *rs_ctx );
@@ -665,7 +681,10 @@ int mbedtls_x509_crt_verify_with_ca_cb( mbedtls_x509_crt *crt,
                      mbedtls_x509_crt_ca_cb_t f_ca_cb,
                      void *p_ca_cb,
                      const mbedtls_x509_crt_profile *profile,
-                     const char *cn, uint32_t *flags,
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION) || defined(DOXYGEN_ONLY)
+                     const char *cn,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION || defined(DOXYGEN_ONLY) */
+                     uint32_t *flags,
                      int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *),
                      void *p_vrfy );
 

@@ -229,6 +229,7 @@ int verify_print( void *data, mbedtls_x509_crt *crt, int certificate_depth, uint
     return( 0 );
 }
 
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
 int verify_parse_san( mbedtls_x509_subject_alternative_name *san,
                       char **buf, size_t *size )
 {
@@ -301,6 +302,7 @@ int verify_parse_san( mbedtls_x509_subject_alternative_name *san,
 
     return( 0 );
 }
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
 #endif /* MBEDTLS_X509_CRT_PARSE_C */
 /* END_HEADER */
 
@@ -312,6 +314,7 @@ int verify_parse_san( mbedtls_x509_subject_alternative_name *san,
 /* BEGIN_CASE depends_on:MBEDTLS_FS_IO:MBEDTLS_X509_CRT_PARSE_C */
 void x509_parse_san( char * crt_file, char * result_str )
 {
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
     int ret;
     mbedtls_x509_crt   crt;
     mbedtls_x509_subject_alternative_name san;
@@ -346,6 +349,10 @@ void x509_parse_san( char * crt_file, char * result_str )
 exit:
 
     mbedtls_x509_crt_free( &crt );
+#else
+    (void)crt_file;
+    (void)result_str;
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
 }
 /* END_CASE */
 
@@ -483,7 +490,11 @@ void x509_verify_restart( char *crt_file, char *ca_file,
     cnt_restart = 0;
     do {
         ret = mbedtls_x509_crt_verify_restartable( &crt, &ca, NULL,
-                &mbedtls_x509_crt_profile_default, NULL, &flags,
+                &mbedtls_x509_crt_profile_default,
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
+                NULL,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
+                &flags,
                 NULL, NULL, &rs_ctx );
     } while( ret == MBEDTLS_ERR_ECP_IN_PROGRESS && ++cnt_restart );
 
@@ -495,7 +506,11 @@ void x509_verify_restart( char *crt_file, char *ca_file,
 
     /* Do we leak memory when aborting? */
     ret = mbedtls_x509_crt_verify_restartable( &crt, &ca, NULL,
-            &mbedtls_x509_crt_profile_default, NULL, &flags,
+            &mbedtls_x509_crt_profile_default,
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
+            NULL,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
+            &flags,
             NULL, NULL, &rs_ctx );
     TEST_ASSERT( ret == result || ret == MBEDTLS_ERR_ECP_IN_PROGRESS );
 
@@ -518,9 +533,10 @@ void x509_verify( char *crt_file, char *ca_file, char *crl_file,
     uint32_t         flags = 0;
     int         res;
     int (*f_vrfy)(void *, mbedtls_x509_crt *, int, uint32_t *) = NULL;
-    char *      cn_name = NULL;
     const mbedtls_x509_crt_profile *profile;
-
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
+    char *      cn_name = NULL;
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
 #if defined(MBEDTLS_USE_PSA_CRYPTO)
     TEST_ASSERT( psa_crypto_init() == 0 );
 #endif
@@ -529,8 +545,12 @@ void x509_verify( char *crt_file, char *ca_file, char *crl_file,
     mbedtls_x509_crt_init( &ca );
     mbedtls_x509_crl_init( &crl );
 
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
     if( strcmp( cn_name_str, "NULL" ) != 0 )
         cn_name = cn_name_str;
+#else
+    (void)cn_name_str;
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
 
     if( strcmp( profile_str, "" ) == 0 )
         profile = &mbedtls_x509_crt_profile_default;
@@ -558,7 +578,11 @@ void x509_verify( char *crt_file, char *ca_file, char *crl_file,
     TEST_ASSERT( mbedtls_x509_crt_parse_file( &ca, ca_file ) == 0 );
     TEST_ASSERT( mbedtls_x509_crl_parse_file( &crl, crl_file ) == 0 );
 
-    res = mbedtls_x509_crt_verify_with_profile( &crt, &ca, &crl, profile, cn_name, &flags, f_vrfy, NULL );
+    res = mbedtls_x509_crt_verify_with_profile( &crt, &ca, &crl, profile,
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
+                                                cn_name,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
+                                                &flags, f_vrfy, NULL );
 
     TEST_ASSERT( res == ( result ) );
     TEST_ASSERT( flags == (uint32_t)( flags_result ) );
@@ -570,7 +594,11 @@ void x509_verify( char *crt_file, char *ca_file, char *crl_file,
     {
         flags = 0;
 
-        res = mbedtls_x509_crt_verify_with_ca_cb( &crt, ca_callback, &ca, profile, cn_name, &flags, f_vrfy, NULL );
+        res = mbedtls_x509_crt_verify_with_ca_cb( &crt, ca_callback, &ca, profile,
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
+                                                cn_name,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
+                                                &flags, f_vrfy, NULL );
 
         TEST_ASSERT( res == ( result ) );
         TEST_ASSERT( flags == (uint32_t)( flags_result ) );
@@ -598,11 +626,19 @@ void x509_verify_ca_cb_failure( char *crt_file, char *ca_file, char *name,
     TEST_ASSERT( mbedtls_x509_crt_parse_file( &crt, crt_file ) == 0 );
     TEST_ASSERT( mbedtls_x509_crt_parse_file( &ca, ca_file ) == 0 );
 
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
     if( strcmp( name, "NULL" ) == 0 )
         name = NULL;
+#else
+    (void)name;
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
 
     ret = mbedtls_x509_crt_verify_with_ca_cb( &crt, ca_callback_fail, &ca,
-                                              &compat_profile, name, &flags,
+                                              &compat_profile,
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
+                                              name,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
+                                              &flags,
                                               NULL, NULL );
 
     TEST_ASSERT( ret == exp_ret );
@@ -634,12 +670,19 @@ void x509_verify_callback( char *crt_file, char *ca_file, char *name,
     TEST_ASSERT( mbedtls_x509_crt_parse_file( &crt, crt_file ) == 0 );
     TEST_ASSERT( mbedtls_x509_crt_parse_file( &ca, ca_file ) == 0 );
 
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
     if( strcmp( name, "NULL" ) == 0 )
         name = NULL;
+#else
+    (void)name;
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
 
     ret = mbedtls_x509_crt_verify_with_profile( &crt, &ca, NULL,
                                                 &compat_profile,
-                                                name, &flags,
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
+                                                name,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
+                                                &flags,
                                                 verify_print, &vrfy_ctx );
 
     TEST_ASSERT( ret == exp_ret );
@@ -882,8 +925,11 @@ void mbedtls_x509_crt_verify_max( char *ca_file, char *chain_dir, int nb_int,
     TEST_ASSERT( mbedtls_x509_crt_parse_file( &chain, file_buf ) == 0 );
 
     /* Try to verify that chain */
-    ret = mbedtls_x509_crt_verify( &chain, &trusted, NULL, NULL, &flags,
-                                   NULL, NULL );
+    ret = mbedtls_x509_crt_verify( &chain, &trusted, NULL,
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
+                                NULL,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
+                                &flags, NULL, NULL );
     TEST_ASSERT( ret == ret_chk );
     TEST_ASSERT( flags == (uint32_t) flags_chk );
 
@@ -927,7 +973,10 @@ void mbedtls_x509_crt_verify_chain(  char *chain_paths, char *trusted_ca,
         profile = &profile_sha512;
 
     res = mbedtls_x509_crt_verify_with_profile( &chain, &trusted, NULL, profile,
-            NULL, &flags, verify_fatal, &vrfy_fatal_lvls );
+#if !defined(MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION)
+            NULL,
+#endif /* !MBEDTLS_X509_REMOVE_HOSTNAME_VERIFICATION */
+            &flags, verify_fatal, &vrfy_fatal_lvls );
 
     TEST_ASSERT( res == ( result ) );
     TEST_ASSERT( flags == (uint32_t)( flags_result ) );
