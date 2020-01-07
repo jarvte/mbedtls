@@ -1083,6 +1083,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
     len = buflen;
     end = p + len;
 
+    printf("\nx509_crt_parse_der_core IN\n");
     /*
      * Certificate  ::=  SEQUENCE  {
      *      tbsCertificate       TBSCertificate,
@@ -1093,6 +1094,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
             MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 1\n");
         return( MBEDTLS_ERR_X509_INVALID_FORMAT );
     }
 
@@ -1126,6 +1128,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
             MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 2,mbedtls_asn1_get_tag: %d \n", ret);
         return( MBEDTLS_ERR_X509_INVALID_FORMAT + ret );
     }
 
@@ -1144,6 +1147,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
         ( ret = mbedtls_x509_get_alg(      &p, end, &crt->sig_oid,
                                             &sig_params1 ) ) != 0 )
     {
+        printf("\nx509_crt_parse_der_core 3, %d \n", ret);
         mbedtls_x509_crt_free( crt );
         return( ret );
     }
@@ -1161,6 +1165,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
                                   &crt->sig_opts ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 4,mbedtls_x509_get_sig_alg: %d \n", ret);
         return( ret );
     }
 
@@ -1173,12 +1178,14 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
             MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 5,mbedtls_asn1_get_tag: %d \n", ret);
         return( MBEDTLS_ERR_X509_INVALID_FORMAT + ret );
     }
 
     if( ( ret = mbedtls_x509_get_name( &p, p + len, &crt->issuer ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 6,mbedtls_x509_get_name: %d \n", ret);
         return( ret );
     }
 
@@ -1194,6 +1201,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
                                          &crt->valid_to ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 7,x509_get_dates: %d \n", ret);
         return( ret );
     }
 
@@ -1206,12 +1214,14 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
             MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 8,mbedtls_asn1_get_tag: %d \n", ret);
         return( MBEDTLS_ERR_X509_INVALID_FORMAT + ret );
     }
 
     if( len && ( ret = mbedtls_x509_get_name( &p, p + len, &crt->subject ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 9,mbedtls_x509_get_name: %d \n", ret);
         return( ret );
     }
 
@@ -1224,6 +1234,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
     if( ( ret = mbedtls_pk_parse_subpubkey( &p, end, &crt->pk ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 10,mbedtls_pk_parse_subpubkey: %d \n", ret);
         return( ret );
     }
     crt->pk_raw.len = p - crt->pk_raw.p;
@@ -1242,6 +1253,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
         if( ret != 0 )
         {
             mbedtls_x509_crt_free( crt );
+            printf("\nx509_crt_parse_der_core 11,x509_get_uid: %d \n", ret);
             return( ret );
         }
     }
@@ -1252,6 +1264,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
         if( ret != 0 )
         {
             mbedtls_x509_crt_free( crt );
+            printf("\nx509_crt_parse_der_core 12,x509_get_uid: %d \n", ret);
             return( ret );
         }
     }
@@ -1264,6 +1277,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
         if( ret != 0 )
         {
             mbedtls_x509_crt_free( crt );
+            printf("\nx509_crt_parse_der_core 13,x509_get_crt_ext: %d \n", ret);
             return( ret );
         }
     }
@@ -1271,6 +1285,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
     if( p != end )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 14,\n");
         return( MBEDTLS_ERR_X509_INVALID_FORMAT +
                 MBEDTLS_ERR_ASN1_LENGTH_MISMATCH );
     }
@@ -1287,6 +1302,7 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
     if( ( ret = mbedtls_x509_get_alg( &p, end, &sig_oid2, &sig_params2 ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 15,mbedtls_x509_get_alg: %d \n", ret);
         return( ret );
     }
 
@@ -1303,12 +1319,14 @@ static int x509_crt_parse_der_core( mbedtls_x509_crt *crt,
     if( ( ret = mbedtls_x509_get_sig( &p, end, &crt->sig ) ) != 0 )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 16,mbedtls_x509_get_sig: %d \n", ret);
         return( ret );
     }
 
     if( p != end )
     {
         mbedtls_x509_crt_free( crt );
+        printf("\nx509_crt_parse_der_core 17\n");
         return( MBEDTLS_ERR_X509_INVALID_FORMAT +
                 MBEDTLS_ERR_ASN1_LENGTH_MISMATCH );
     }
